@@ -26,3 +26,4 @@ dependencies:
   - typing_extensions==4.4.0
   - ipykernel
   - gym[Box2D]
+  - optuna

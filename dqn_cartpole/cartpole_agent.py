@@ -16,39 +16,35 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 64  # minibatch size
-GAMMA = 0.99  # discount factor
-TAU = 1e-3  # for soft update of target parameters
-LR = 5e-4  # learning rate
-UPDATE_EVERY = 4  # how often to update the network
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+default_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class CartPoleAgent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, args, state_size, action_size, seed, device):
+    def __init__(self, args, state_size, action_size, device=default_device):
         """Initialize an Agent object.
 
         Params
         ======
             state_size (int): dimension of each state
             action_size (int): dimension of each action
-            seed (int): random seed
         """
+        
         self.state_size = state_size
         self.action_size = action_size
-        self.seed = random.seed(seed)
+        self.device = device
+        if args.seed > 0:
+            random.seed(args.seed)
+            torch.manual_seed(args.seed)
 
         # Q-Network
-        self.qnetwork_local = CartPoleNet(state_size, action_size, seed).to(device)
-        self.qnetwork_target = CartPoleNet(state_size, action_size, seed).to(device)
+        self.qnetwork_local = CartPoleNet(state_size, action_size, args.seed).to(self.device)
+        self.qnetwork_target = CartPoleNet(state_size, action_size, args.seed).to(self.device)
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=args.learning_rate)
 
         # Replay memory
-        self.memory = ReplayBuffer(action_size, args.replay_buffer_size, args.batch_size, seed, device)
+        self.memory = ReplayBuffer(action_size, args.replay_buffer_size, args.batch_size, args.seed, self.device)
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
 
@@ -75,7 +71,7 @@ class CartPoleAgent():
             state (array_like): current state
             eps (float): epsilon, for epsilon-greedy action selection
         """
-        state = torch.from_numpy(state).float().unsqueeze(0).to(device)
+        state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
