@@ -30,7 +30,7 @@ def createArgs(args):
     parser.add_argument('--epsilon_decay', type=float, default=0.9906)
     parser.add_argument('--update_target_net', type=int, default=4)
     parser.add_argument('--n_episodes', type=int, default=500)
-    parser.add_argument('--max_t', type=int, default=2000)
+    parser.add_argument('--max_t', type=int, default=20000)
     parser.add_argument('--gamma', type=float, default=0.9938)
     parser.add_argument('--soft_update_tau', type=float, default=0.0752)
     parser.add_argument('--show_plot', type=bool, default=True)
